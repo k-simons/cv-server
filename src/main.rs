@@ -10,7 +10,6 @@ use rocket_contrib::json::{Json};
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -26,6 +25,25 @@ fn index_foo() -> &'static str {
 struct Point {
     x: i32,
     y: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct ScrapeResult {
+    scrape_time: String,
+    row_results: Vec<RowResult>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct RowResult {
+    state: String,
+    total: i64,
+    new_cases: i64,
+    total_deaths: i64,
+    new_deaths: i64,
+    total_recovered: i64,
+    active_cases: i64,
 }
 
 #[get("/barJson", format = "json")]
@@ -44,9 +62,9 @@ fn main() {
     println!("Mount over!");
 }
 
-fn read_user_from_file() -> Result<Point, Box<Error>> {
+fn read_user_from_file() -> Result<ScrapeResult, Box<Error>> {
     // Open the file in read-only mode with buffer.
-    let file = File::open("/Users/ksimons/code/corona/cv-server/testPoint.json")?;
+    let file = File::open("/Users/ksimons/code/corona/scraping/scrapedData/world/03:22:2020,18:18:35")?;
     // let file = File::open(path)?;
     let reader = BufReader::new(file);
 
