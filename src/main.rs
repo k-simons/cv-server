@@ -22,12 +22,6 @@ fn index_foo() -> &'static str {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ScrapeResult {
     scrape_time: String,
@@ -47,9 +41,9 @@ struct RowResult {
 }
 
 #[get("/barJson", format = "json")]
-fn index_bar() ->  Json<Point> {
-    let point = Point { x: 1, y: 2 };
-    return Json(point)
+fn index_bar() ->  Json<ScrapeResult> {
+    let scrapeResult = read_user_from_file().unwrap();
+    return Json(scrapeResult)
 }
 
 
