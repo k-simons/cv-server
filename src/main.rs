@@ -1,14 +1,17 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+use serde::{Serialize, Deserialize};
 
-#[macro_use] extern crate rocket;
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+#[derive(Serialize, Deserialize, Debug)]
+struct Point {
+    x: i32,
+    y: i32,
 }
 
 fn main() {
-    println!("Mount!");
-    rocket::ignite().mount("/", routes![index]).launch();
-    println!("Mount over!");
+    let point = Point { x: 1, y: 2 };
+
+    let serialized = serde_json::to_string(&point).unwrap();
+    println!("serialized = {}", serialized);
+
+    let deserialized: Point = serde_json::from_str(&serialized).unwrap();
+    println!("deserialized = {:?}", deserialized);
 }
