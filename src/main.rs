@@ -5,6 +5,7 @@
 #[macro_use] extern crate rocket;
 use serde::{Serialize, Deserialize};
 use rocket_contrib::json::{Json};
+use rocket_contrib::serve::StaticFiles;
 
 
 use std::error::Error;
@@ -52,7 +53,10 @@ fn main() {
     let u = read_user_from_file().unwrap();
     println!("{:#?}", u);
     println!("Mount!");
-    rocket::ignite().mount("/", routes![index, index_foo, index_bar]).launch();
+    rocket::ignite()
+        .mount("/", routes![index, index_foo, index_bar])
+        .mount("/public", StaticFiles::from("static"))
+        .launch();
     println!("Mount over!");
 }
 
