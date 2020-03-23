@@ -6,6 +6,9 @@
 use serde::{Serialize, Deserialize};
 use rocket_contrib::json::{Json};
 use rocket_contrib::serve::StaticFiles;
+use rocket_cors::Cors;
+use rocket_cors::CorsOptions;
+
 
 
 use std::error::Error;
@@ -43,10 +46,17 @@ struct RowResult {
 
 #[get("/barJson", format = "json")]
 fn index_bar() ->  Json<ScrapeResult> {
-    let scrapeResult = read_user_from_file().unwrap();
-    return Json(scrapeResult)
+    let scrape_result = read_user_from_file().unwrap();
+    return Json(scrape_result)
 }
 
+fn make_cors() -> Cors {
+    CorsOptions { // 5.
+        ..Default::default()
+    }
+    .to_cors()
+    .expect("error while building CORS")
+}
 
 fn main() {
     println!("Start");
@@ -56,6 +66,7 @@ fn main() {
     rocket::ignite()
         .mount("/", routes![index, index_foo, index_bar])
         .mount("/public", StaticFiles::from("static"))
+        .attach(make_cors())
         .launch();
     println!("Mount over!");
 }
