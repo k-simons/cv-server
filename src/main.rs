@@ -7,6 +7,8 @@ use serde::{Serialize, Deserialize};
 use rocket_contrib::json::{Json};
 use rocket_contrib::serve::StaticFiles;
 use rocket_cors::Cors;
+use std::collections::HashMap;
+
 use rocket_cors::CorsOptions;
 
 
@@ -28,8 +30,8 @@ fn index_foo() -> &'static str {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ScrapeResult {
-    scrape_time: String,
-    row_results: Vec<RowResult>,
+    usa: HashMap<String, Vec<RowResult>>,
+    world: HashMap<String, Vec<RowResult>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,7 +48,9 @@ struct RowResult {
 
 #[get("/barJson", format = "json")]
 fn index_bar() ->  Json<ScrapeResult> {
-    let scrape_result = read_user_from_file().unwrap();
+    let usa = read_user_from_file("/Users/ksimons/code/corona/cv-scraping/aggregatedData/usa/data.json").unwrap();
+    let world = read_user_from_file("/Users/ksimons/code/corona/cv-scraping/aggregatedData/world/data.json").unwrap();
+    let scrape_result = ScrapeResult { usa: usa, world: world };
     return Json(scrape_result)
 }
 
@@ -60,8 +64,6 @@ fn make_cors() -> Cors {
 
 fn main() {
     println!("Start");
-    let u = read_user_from_file().unwrap();
-    println!("{:#?}", u);
     println!("Mount!");
     rocket::ignite()
         .mount("/", routes![index, index_foo, index_bar])
@@ -71,9 +73,10 @@ fn main() {
     println!("Mount over!");
 }
 
-fn read_user_from_file() -> Result<ScrapeResult, Box<Error>> {
+fn read_user_from_file(file: &str) -> Result<HashMap<String, Vec<RowResult>>, Box<Error>> {
     // Open the file in read-only mode with buffer.
-    let file = File::open("/Users/ksimons/code/corona/scraping/scrapedData/world/03:22:2020,18:18:35")?;
+
+    let file = File::open(file)?;
     // let file = File::open(path)?;
     let reader = BufReader::new(file);
 
